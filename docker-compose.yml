@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: node_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - mongo_db_eval_system
+
+  mongo_db_eval_system:
+    image: mongo:latest
+    container_name: mongo_db_eval_system
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+      - mongo_log:/var/log/mongodb
+
+volumes:
+  mongo_data:
+    name: local_mongo_data_volume
+  mongo_config:
+    name: local_mongo_config_volume
+  mongo_log:
+    name: local_mongo_log_volume
