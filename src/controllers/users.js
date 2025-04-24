@@ -1,59 +1,62 @@
 import usersRepository from "../repositories/users.js";
+import NotFoundError from "../utils/error/NotFoundError.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
+
 class usersController {
-    async getAllUsers(req, res) {
+    async getAllUsers(req, res, next) {
         try {
             const users = await usersRepository.getAllUsers();
-            res.status(200).json({status: "get-all-ok", data: users});
+            res.status(200).json(users);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof DatabaseError ? e : new DatabaseError("Error fetching all users", e));
         }
     }
 
-    async getUserById(req, res) {
+    async getUserById(req, res, next) {
         try {
             const user = await usersRepository.getUserById(req.params.id);
             if (!user) {
-                return res.status(404).json({status: "error", error: "User not found"});
+                throw new NotFoundError("User not found");
             }
-            res.status(200).json({status: "get-by-id-ok", data: user});
+            res.status(200).json(user);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error fetching user by ID", e));
         }
     }
 
-    async createUser(req, res) {
+    async createUser(req, res, next) {
         try {
             const user = await usersRepository.createUser(req.body);
-            res.status(200).json({status: "create-ok", data: user});
+            
+            res.status(201).json(user);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error creating user", e));
         }
     }
 
-    async updateUser(req, res) {
+    async updateUser(req, res, next) {
         try {
             const user = await usersRepository.updateUser(req.params.id, req.body);
             if (!user) {
-                return res.status(404).json({status: "error", error: "User not found"});
+                throw new NotFoundError("User not found");
             }
-            res.status(200).json({status: "update-ok", data: user});
+            res.status(200).json(user);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error updating user", e));
         }
     }
 
-    async deleteUser(req, res) {
+    async deleteUser(req, res, next) {
         try {
             const user = await usersRepository.deleteUser(req.params.id);
             if (!user) {
-                return res.status(404).json({status: "error", error: "User not found"});
+                throw new NotFoundError("User not found");
             }
-            res.status(200).json({status: "delete-ok", data: user});
+            res.status(200).json(user);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error deleting user", e));
         }
     }
 }
-
 
 export default new usersController();

@@ -5,6 +5,7 @@ const questionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Evaluation",
     required: true,
+    autopopulate: true
   },
   question: {
     type: String,

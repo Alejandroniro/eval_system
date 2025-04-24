@@ -1,57 +1,59 @@
 import departmentsRepository from "../repositories/departments.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
+import NotFoundError from "../utils/error/NotFoundError.js";
 
 class departmentController {
-    async getAllDepartments(req, res) {
+    async getAllDepartments(req, res, next) {
         try {
-            const deparments = await departmentsRepository.getAllDepartments();
-            res.status(200).json({status: "get-all-ok", data: deparments});
+            const departments = await departmentsRepository.getAllDepartments();
+            res.status(200).json(departments);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al obtener departamentos", e));
         }
     }
 
-    async getDepartmentById(req, res) {
+    async getDepartmentById(req, res, next) {
         try {
             const department = await departmentsRepository.getDepartmentById(req.params.id);
             if (!department) {
-                return res.status(404).json({status: "error", error: "department not found"});
+                throw new NotFoundError("Department not found");
             }
-            res.status(200).json({status: "get-by-id-ok", data: department});
+            res.status(200).json(department);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al obtener departamento", e));
         }
     }
 
-    async createDepartment(req, res) {
+    async createDepartment(req, res, next) {
         try {
             const department = await departmentsRepository.createDepartment(req.body);
-            res.status(200).json({status: "create-ok", data: department});
+            res.status(201).json(department);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al crear departamento", e));
         }
     }
 
-    async updateDepartment(req, res) {
+    async updateDepartment(req, res, next) {
         try {
             const department = await departmentsRepository.updateDepartment(req.params.id, req.body);
             if (!department) {
-                return res.status(404).json({status: "error", error: "department not found"});
+                throw new NotFoundError("Department not found");
             }
-            res.status(200).json({status: "update-ok", data: department});
+            res.status(200).json(department);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al actualizar departamento", e));
         }
     }
 
-    async deleteDepartment(req, res) {
+    async deleteDepartment(req, res, next) {
         try {
             const department = await departmentsRepository.deleteDepartment(req.params.id);
             if (!department) {
-                return res.status(404).json({status: "error", error: "department not found"});
+                throw new NotFoundError("Department not found");
             }
-            res.status(200).json({status: "delete-ok", data: department});
+            res.status(200).json(department);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al eliminar departamento", e));
         }
     }
 }

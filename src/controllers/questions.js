@@ -1,35 +1,37 @@
-import Question from "../models/questions.js";
 import questionsRepository from "../repositories/questions.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
+import NotFoundError from "../utils/error/NotFoundError.js";
+
 class questionsController {
-    async getAllQuestions(req, res) {
+    async getAllQuestions(req, res, next) {
         try {
             const questions = await questionsRepository.getAllQuestions();
-            res.status(200).json({status: "get-all-ok", data: questions});
+            res.status(200).json(questions);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al obtener las preguntas", e));
         }
     }
 
-    async createQuestion(req, res) {
+    async createQuestion(req, res, next) {
         try {
             const question = await questionsRepository.createQuestion(req.body);
-            res.status(200).json({status: "create-ok", data: question});
+            res.status(201).json(question);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al crear la pregunta", e));
         }
     }
 
-    async updateQuestion(req, res) {
+    async updateQuestion(req, res, next) {
         try {
             const question = await questionsRepository.updateQuestion(req.params.id, req.body);
             if (!question) {
-                return res.status(404).json({status: "error", error: "question not found"});
+                throw new NotFoundError("Pregunta no encontrada");
             }
-            res.status(200).json({status: "update-ok", data: question});
+            res.status(200).json(question);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al actualizar la pregunta", e));
         }
     }
-  }
+}
 
 export default new questionsController();

@@ -1,58 +1,55 @@
 import answersRepository from "../repositories/answers.js";
-class answersController {
-    async getAllAnswers(req, res) {
+import NotFoundError from "../utils/error/NotFoundError.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
+
+class AnswersController {
+    async getAllAnswers(req, res, next) {
         try {
             const answers = await answersRepository.getAllAnswers();
-            res.status(200).json({status: "get-all-ok", data: answers});
-        } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            res.status(200).json(answers);
+        } catch (error) {
+            next(new DatabaseError("Error al obtener las respuestas", error));
         }
     }
 
-    async getAnswerById(req, res) {
+    async getAnswerById(req, res, next) {
         try {
             const answer = await answersRepository.getAnswerById(req.params.id);
-            if (!answer) {
-                return res.status(404).json({status: "error", error: "answer not found"});
-            }
-            res.status(200).json({status: "get-by-id-ok", data: answer});
-        } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            if (!answer) throw new NotFoundError("Respuesta no encontrada");
+            res.status(200).json(answer);
+        } catch (error) {
+            next(error instanceof NotFoundError ? error : new DatabaseError("Error al obtener respuesta", error));
         }
     }
 
-    async createAnswer(req, res) {
+    async createAnswer(req, res, next) {
         try {
             const answer = await answersRepository.createAnswer(req.body);
-            res.status(200).json({status: "create-ok", data: answer});
-        } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            res.status(201).json(answer);
+        } catch (error) {
+            next(new DatabaseError("Error al crear la respuesta", error));
         }
     }
 
-    async updateAnswer(req, res) {
+    async updateAnswer(req, res, next) {
         try {
             const answer = await answersRepository.updateAnswer(req.params.id, req.body);
-            if (!answer) {
-                return res.status(404).json({status: "error", error: "answer not found"});
-            }
-            res.status(200).json({status: "update-ok", data: answer});
-        } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            if (!answer) throw new NotFoundError("Respuesta no encontrada para actualizar");
+            res.status(200).json(answer);
+        } catch (error) {
+            next(error instanceof NotFoundError ? error : new DatabaseError("Error al actualizar respuesta", error));
         }
     }
 
-    async deleteAnswer(req, res) {
+    async deleteAnswer(req, res, next) {
         try {
             const answer = await answersRepository.deleteAnswer(req.params.id);
-            if (!answer) {
-                return res.status(404).json({status: "error", error: "answer not found"});
-            }
-            res.status(200).json({status: "delete-ok", data: answer});
-        } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            if (!answer) throw new NotFoundError("Respuesta no encontrada para eliminar");
+            res.status(200).json(answer);
+        } catch (error) {
+            next(error instanceof NotFoundError ? error : new DatabaseError("Error al eliminar respuesta", error));
         }
     }
 }
 
-export default new answersController ();
+export default new AnswersController();

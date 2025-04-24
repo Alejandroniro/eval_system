@@ -39,7 +39,11 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-  }
+  },
+  notifications: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Notification",
+  },
 }, { timestamps: true });
 
 const Employee = mongoose.model("Employee", employeeSchema);

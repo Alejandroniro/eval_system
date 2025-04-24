@@ -1,45 +1,47 @@
-import Employee from "../models/employees.js";
 import employeesRepository from "../repositories/employees.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
+import NotFoundError from "../utils/error/NotFoundError.js";
+
 class employeesController {
-    async getAllEmployees(req, res) {
+    async getAllEmployees(req, res, next) {
         try {
             const employees = await employeesRepository.getAllEmployees();
-            res.status(200).json({status: "get-all-ok", data: employees});
+            res.status(200).json(employees);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al obtener empleados", e));
         }
     }
 
-    async getEmployeeById(req, res) {
+    async getEmployeeById(req, res, next) {
         try {
             const employee = await employeesRepository.getEmployeeById(req.params.id);
             if (!employee) {
-                return res.status(404).json({status: "error", error: "Employee not found"});
+                throw new NotFoundError("Employee not found");
             }
-            res.status(200).json({status: "get-by-id-ok", data: employee});
+            res.status(200).json(employee);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al obtener empleado", e));
         }
     }
 
-    async createEmployee(req, res) {
+    async createEmployee(req, res, next) {
         try {
             const employee = await employeesRepository.createEmployee(req.body);
-            res.status(200).json({status: "create-ok", data: employee});
+            res.status(201).json(employee);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(new DatabaseError("Error al crear empleado", e));
         }
     }
 
-    async updateEmployee(req, res) {
+    async updateEmployee(req, res, next) {
         try {
             const employee = await employeesRepository.updateEmployee(req.params.id, req.body);
             if (!employee) {
-                return res.status(404).json({status: "error", error: "Employee not found"});
+                throw new NotFoundError("Employee not found");
             }
-            res.status(200).json({status: "update-ok", data: employee});
+            res.status(200).json(employee);
         } catch (e) {
-            res.status(500).json({status: "error", error: e});
+            next(e instanceof NotFoundError ? e : new DatabaseError("Error al actualizar empleado", e));
         }
     }
 }

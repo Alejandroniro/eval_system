@@ -17,7 +17,7 @@ const usersRepository = {
     return await User.findByIdAndDelete(id);
   },
 
-  findUserByEmail: async (email) => {
+  findUserByEmail: async ({email}) => {
     return await User.findOne({ email });
   },
 };

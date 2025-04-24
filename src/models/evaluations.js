@@ -5,6 +5,19 @@ const evaluationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Employee",
     required: true,
+    autopopulate: true
+  },
+  evaluator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    autopopulate: true
+
+  },
+  questions: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Question",
+    autopopulate: true
+
   },
   period: {
     type: String,
@@ -21,6 +34,18 @@ const evaluationSchema = new mongoose.Schema({
     required: true,
     enum: ["performance evaluation", "skills assessment"],
   },
+  submitted: {
+    type: Boolean,
+    default: false,
+  },
+  totalScore: {
+    type: Number,
+    default: null,
+  },
+  notified: {
+    type: Boolean,
+    default: false,
+  }
 }, { timestamps: true });
 
 

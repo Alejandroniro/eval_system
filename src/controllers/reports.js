@@ -1,45 +1,47 @@
 import reportsRepository from "../repositories/reports.js";
+import NotFoundError from "../utils/error/NotFoundError.js";
+import DatabaseError from "../utils/error/DatabaseError.js";
 
 class ReportsController {
-  async getEmployeeReport(req, res) {
+  async getEmployeeReport(req, res, next) {
     try {
       const employee = await reportsRepository.getEmployeeById(req.params.id);
       if (!employee) {
-        return res.status(404).json({ status: "error", error: "employee not found" });
+        throw new NotFoundError("Employee not found");
       }
 
       const evaluations = await reportsRepository.getEvaluationsByEmployee(employee._id);
       if (!evaluations || evaluations.length === 0) {
-        return res.status(404).json({ status: "error", error: "evaluations not found" });
+        throw new NotFoundError("Evaluations not found");
       }
 
-      res.status(200).json({ status: "get-by-id-ok", data: evaluations });
+      res.status(200).json(evaluations);
     } catch (e) {
-      res.status(500).json({ status: "error", error: e.message });
+      next(e instanceof NotFoundError ? e : new DatabaseError("Error fetching employee report", e));
     }
   }
 
-  async getDepartmentReport(req, res) {
+  async getDepartmentReport(req, res, next) {
     try {
       const department = await reportsRepository.getDepartmentById(req.params.id);
       if (!department) {
-        return res.status(404).json({ status: "error", error: "department not found" });
+        throw new NotFoundError("Department not found");
       }
 
       const employees = await reportsRepository.getEmployeesByDepartment(department._id);
       if (!employees || employees.length === 0) {
-        return res.status(404).json({ status: "error", error: "employees not found" });
+        throw new NotFoundError("Employees not found");
       }
 
       const employeeIds = employees.map(emp => emp._id);
       const evaluations = await reportsRepository.getEvaluationsByEmployeeIds(employeeIds);
       if (!evaluations || evaluations.length === 0) {
-        return res.status(404).json({ status: "error", error: "evaluations not found" });
+        throw new NotFoundError("Evaluations not found");
       }
 
-      res.status(200).json({ status: "get-by-id-ok", data: evaluations });
+      res.status(200).json(evaluations);
     } catch (e) {
-      res.status(500).json({ status: "error", error: e.message });
+      next(e instanceof NotFoundError ? e : new DatabaseError("Error fetching department report", e));
     }
   }
 }
