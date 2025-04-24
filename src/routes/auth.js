@@ -38,6 +38,9 @@ const router = express.Router();
  *               name:
  *                 type: string
  *                 example: Juan Pérez
+ *               role:
+ *                 type: string
+ *                 example: manager, employee, admin
  *     responses:
  *       201:
  *         description: Usuario creado exitosamente

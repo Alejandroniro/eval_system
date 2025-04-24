@@ -13,6 +13,7 @@ To run the project, you need to have Node.js installed on your machine.
 5. Run `npm run dev` to start the server in development mode.
 6. Open a web browser and navigate to `http://localhost:3000`.
 
+
 ## Project Structure
 
 The project is organized in the following folders:
@@ -26,6 +27,10 @@ The project is organized in the following folders:
 * `src/services`: Service functions for performing complex operations.
 * `src/utils`: Utility functions for error handling and other tasks.
 * `tests`: Test files for the application.
+
+## API Documentation
+
+API documentation is available at /api-docs. This is generated using Swagger and provides a detailed overview of the API endpoints and their usage.
 
 ## Design Decisions
 
